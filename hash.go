@@ -9,7 +9,7 @@ const (
 //hash32 a fnv32a implimentation that can be inlined
 func hash32(c uint32) (v uint32) {
 	v = offset
-	for i := 0; i < 32; i += 4 {
+	for i := 0; i < 32; i += 8 {
 		v ^= (c >> i) & 0xff
 		v *= prime32
 	}
