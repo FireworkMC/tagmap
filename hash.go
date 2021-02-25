@@ -7,10 +7,11 @@ const (
 )
 
 //hash32 a fnv32a implimentation that can be inlined
-func hash32(c uint32) uint32 {
-	return ((((offset^(c)&0xFF)*
-		prime32^(c>>8)&0xFF)*
-		prime32^(c>>16)&0xFF)*
-		prime32 ^ (c >> 24)) *
-		prime32
+func hash32(c uint32) (v uint32) {
+	v = offset
+	for i := 0; i < 32; i += 4 {
+		v ^= (c >> i) & 0xff
+		v *= prime32
+	}
+	return
 }

@@ -14,38 +14,32 @@ type TagMap struct {
 
 	keys  []uint32
 	mask  uint32
-	chain int
+	chain uint32
 }
 
 //Has returns if v is in the tag map
 func (t *TagMap) Has(v uint32) bool {
 	if v == 0 {
 		return t.hasZero
-	} else if k := t.keys[hash32(v)&t.mask]; k == v {
-		return true
-	} else if k == 0 {
-		return false
 	}
-	return t.hasSlow(v)
+
+	idx := hash32(v)
+
+	var i uint32
+
+	for ; i < t.chain; i++ {
+		k := t.keys[(idx+i)&t.mask]
+		if k == v || k == 0 {
+			return k == v
+
+		}
+	}
+
+	return false
 }
 
 //Len gets the length of the tag map
 func (t *TagMap) Len() int { return t.len }
-
-func (t *TagMap) hasSlow(v uint32) bool {
-	idx := hash32(v) + 1
-
-	for i := 0; i < t.chain; i++ {
-		k := t.keys[idx&t.mask]
-		if k == v {
-			return true
-		} else if k == 0 {
-			return false
-		}
-		idx++
-	}
-	return false
-}
 
 //Keys get all the keys
 func (t *TagMap) Keys() []uint32 {
@@ -83,6 +77,6 @@ func New(m map[uint32]struct{}) *TagMap {
 			}
 		}
 	}
-	t.chain = max
+	t.chain = uint32(max)
 	return &t
 }
